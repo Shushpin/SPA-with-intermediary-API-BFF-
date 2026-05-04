@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.0
+    command: start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    networks:
+      - auth-network
+
+  bff-app:
+    build: ./bff
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ISSUER_URI: http://host.docker.internal:8081/realms/bff-realm
+      KEYCLOAK_CLIENT_ID: bff-client
+      KEYCLOAK_CLIENT_SECRET: сюди_встав_свій_справжній_секрет
+    depends_on:
+      - keycloak
+    networks:
+      - auth-network
+
+networks:
+  auth-network:
+    driver: bridge
